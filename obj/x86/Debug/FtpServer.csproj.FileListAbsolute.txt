@@ -1,0 +1,9 @@
+E:\C# Project\C#网络通信\FtpServer\bin\Debug\FtpServer.exe
+E:\C# Project\C#网络通信\FtpServer\bin\Debug\FtpServer.pdb
+E:\C# Project\C#网络通信\FtpServer\obj\x86\Debug\FtpServer.Form1.resources
+E:\C# Project\C#网络通信\FtpServer\obj\x86\Debug\FtpServer.Properties.Resources.resources
+E:\C# Project\C#网络通信\FtpServer\obj\x86\Debug\FtpServer.csproj.GenerateResource.Cache
+E:\C# Project\C#网络通信\FtpServer\obj\x86\Debug\FtpServer.exe
+E:\C# Project\C#网络通信\FtpServer\obj\x86\Debug\FtpServer.pdb
+E:\C# Project\C#网络通信\FtpServer\bin\Debug\FtpServer.exe.config
+E:\C# Project\C#网络通信\FtpServer\obj\x86\Debug\FtpServer.csprojResolveAssemblyReference.cache
