@@ -1,4 +1,7 @@
-﻿using System;
+﻿//作者：Mcdull
+//说明：FTP服务端类，负责监听端口并建立连接。
+//此处单独封装一个类是为了和UI层分离，使得UI仅需通过捕获事件获取通知而无须关心逻辑
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

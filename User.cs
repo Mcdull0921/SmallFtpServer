@@ -1,4 +1,6 @@
-﻿using System;
+﻿//作者：Mcdull
+//说明：FTP账号类
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;

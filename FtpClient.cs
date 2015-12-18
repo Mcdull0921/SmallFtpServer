@@ -1,4 +1,6 @@
-﻿using System;
+﻿//作者：Mcdull
+//说明：FTP客户端类，每个客户端封装一个套接字负责接收和返回数据
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
