@@ -20,23 +20,22 @@ namespace FtpServer
         {
             InitializeComponent();
             CustomSettings settings = ConfigurationManager.GetSection("customSettings") as CustomSettings;
-            server = new FtpServer(GetLocalIP(), Int32.Parse(System.Configuration.ConfigurationManager.AppSettings["Port"]), 2, settings.userCollection.values);
-            server.clientChange += new ClientEvent(server_clientChange);
+            server = new FtpServer(Int32.Parse(System.Configuration.ConfigurationManager.AppSettings["Port"]), 2, settings.userCollection.values);
+            server.clientChange += server_clientChange;
+            GetLocalIP();
         }
 
-        private IPAddress GetLocalIP()
+        private void GetLocalIP()
         {
-            IPAddress ip = Dns.GetHostEntry(Dns.GetHostName()).AddressList[0];
+            Console.WriteLine("本地ip4:");
             IPHostEntry iphe = Dns.GetHostEntry(Dns.GetHostName());
             for (int i = 0; i < iphe.AddressList.Length; i++)
             {
                 if (iphe.AddressList[i].AddressFamily.ToString() != ProtocolFamily.InterNetworkV6.ToString())
                 {
-                    ip = IPAddress.Parse(iphe.AddressList[i].ToString());
-                    break;
+                    Console.WriteLine(iphe.AddressList[i].ToString());
                 }
             }
-            return ip;
         }
 
         void server_clientChange(FtpClient client)

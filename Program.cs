@@ -6,7 +6,6 @@ using System.Threading;
 
 namespace FtpServer
 {
-    delegate void ClientEvent(FtpClient client);
     static class Program
     {
         /// <summary>

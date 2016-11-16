@@ -52,8 +52,9 @@ namespace FtpServer
                     client.SendMessage("215 " + Environment.OSVersion.ToString());
                     return RequestType.SYSTEM;
                 case "OPTS":
-                    client.UpdateEncode(tokens[1], tokens[2]);
                     client.SendMessage("200 设置成功");
+                    var args = tokens[1].Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+                    client.UpdateEncode(args[0], args[1]);
                     return RequestType.OPTS;
                 case "RETR":
                     fileName = tokens[1];
@@ -61,6 +62,10 @@ namespace FtpServer
                     if (file == null)
                     {
                         client.SendMessage("550 文件不存在");
+                    }
+                    else if (file.Length == 0)
+                    {
+                        client.SendMessage("550 文件大小为空");
                     }
                     else
                     {
@@ -156,8 +161,8 @@ namespace FtpServer
                         string[] data = new string[6];
                         if (tokens.Length == 2)
                             data = tokens[1].Split(new char[] { ',' });
-                        else if (tokens.Length == 3)
-                            data = tokens[2].Split(new char[] { ',' });
+                        //else if (tokens.Length == 3)
+                        //    data = tokens[2].Split(new char[] { ',' });
                         else
                             throw new ArgumentException("PORT命令参数无效");
                         PORT_Port = (Int32.Parse(data[4]) << 8) + Int32.Parse(data[5]);

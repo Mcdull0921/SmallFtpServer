@@ -22,18 +22,20 @@ namespace FtpServer
         public static int Port { get; private set; }
         public static IEnumerable<UserElement> Users { get; private set; }
 
-        public FtpServer(IPAddress ip, int port, int max_connect, IEnumerable<UserElement> users)
+        public FtpServer(int port, int max_connect, IEnumerable<UserElement> users)
         {
             clients = new List<FtpClient>();
-            listener = new TcpListener(ip, port);
+            // listener = new TcpListener(ip, port);
+            listener = new TcpListener(IPAddress.Any, port);
             maxConnect = max_connect;
-            LocalIP = ip;
+            // LocalIP = ip;
+            LocalIP = IPAddress.Any;
             Port = port;
             Users = users;
         }
 
         public List<FtpClient> clients;
-        public event ClientEvent clientChange;
+        public event Action<FtpClient> clientChange;
 
         public bool Start()
         {
@@ -50,8 +52,8 @@ namespace FtpServer
                                 listener.Start();
                                 Socket socket = listener.AcceptSocket();
                                 FtpClient client = new FtpClient(socket);
-                                client.Quit += new ClientEvent(client_Quit);
-                                client.Login += new ClientEvent(client_Login);
+                                client.Quit += client_Quit;
+                                client.Login += client_Login;
                                 clients.Add(client);
                                 onClientChange(client);
                                 client.Start();
@@ -105,7 +107,7 @@ namespace FtpServer
 
         private void onClientChange(FtpClient client)
         {
-            ClientEvent temp = clientChange;
+            var temp = clientChange;
             if (temp != null)
                 temp(client);
         }

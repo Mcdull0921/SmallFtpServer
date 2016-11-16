@@ -22,8 +22,8 @@ namespace FtpServer
         private string rootDir;
 
         public User user;
-        public event ClientEvent Quit;
-        public event ClientEvent Login;
+        public event Action<FtpClient> Quit;
+        public event Action<FtpClient> Login;
 
         public FtpClient(Socket socket)
         {
@@ -31,7 +31,7 @@ namespace FtpServer
             user = new User();
             this.request = new FtpRequest(this);
             this.currentSocket = socket;
-            encode = Encoding.UTF8;
+            encode = Encoding.Default;
         }
 
         public IPAddress IP
@@ -44,7 +44,17 @@ namespace FtpServer
             thread = new Thread(() =>
             {
                 SendMessage("220 欢迎使用FTP服务器，你已经连上了服务器...");
-                if (request.Handle(receiveMsg()[0].tokens) != RequestType.LOGIN_USER)
+                var type = request.Handle(receiveMsg()[0].tokens);
+                if (type == RequestType.OPTS)
+                {
+                    if (request.Handle(receiveMsg()[0].tokens) != RequestType.LOGIN_USER)
+                    {
+                        SendMessage("221 命令错误");
+                        close();
+                        return;
+                    }
+                }
+                else if (type != RequestType.LOGIN_USER)
                 {
                     SendMessage("221 命令错误");
                     close();
@@ -452,9 +462,15 @@ namespace FtpServer
                     var token = new Token();
                     if (msg.Length > 0)
                     {
-                        if (msg.IndexOf(" ") > -1)
+                        var index = msg.IndexOf(" ");
+                        if (index > -1)
                         {
-                            token.tokens = msg.Split(new char[] { ' ' });
+                            // token.tokens = msg.Split(new char[] { ' ' });
+                             token.tokens = new string[2]{
+                             msg.Substring(0, index),
+                             msg.Substring(index+1, msg.Length- index-1)
+                            };
+
                         }
                         else
                             token.tokens = new string[] { msg };
@@ -478,7 +494,7 @@ namespace FtpServer
                 request.Dispose();
                 if (@event)
                 {
-                    ClientEvent temp = Quit;
+                    var temp = Quit;
                     if (temp != null)
                         temp(this);
                 }
@@ -487,7 +503,7 @@ namespace FtpServer
 
         private void onLogin()
         {
-            ClientEvent temp = Login;
+            var temp = Login;
             if (temp != null)
                 temp(this);
         }
