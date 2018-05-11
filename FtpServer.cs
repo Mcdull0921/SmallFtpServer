@@ -35,7 +35,16 @@ namespace FtpServer
         }
 
         public List<FtpClient> clients;
-        public event Action<FtpClient> clientChange;
+        public event Action<ClientArgs> clientChange;
+        public class ClientArgs
+        {
+            public string ip { get; set; }
+            public string username { get; set; }
+            /// <summary>
+            /// 访问状态：0访问 1登录成功 2退出登录
+            /// </summary>
+            public int status { get; set; }
+        }
 
         public bool Start()
         {
@@ -55,7 +64,7 @@ namespace FtpServer
                                 client.Quit += client_Quit;
                                 client.Login += client_Login;
                                 clients.Add(client);
-                                onClientChange(client);
+                                onClientChange(new ClientArgs() { ip = client.IP.ToString(), username = client.user.username, status = 0 });
                                 client.Start();
                             }
                             catch
@@ -96,20 +105,21 @@ namespace FtpServer
 
         void client_Login(FtpClient client)
         {
-            onClientChange(client);
+            onClientChange(new ClientArgs() { ip = client.IP.ToString(), username = client.user.username, status = 1 });
         }
 
         void client_Quit(FtpClient client)
         {
+            var a = new ClientArgs() { ip = client.IP.ToString(), username = client.user.username, status = 2 };
             clients.Remove(client);
-            onClientChange(client);
+            onClientChange(a);
         }
 
-        private void onClientChange(FtpClient client)
+        private void onClientChange(ClientArgs args)
         {
             var temp = clientChange;
             if (temp != null)
-                temp(client);
+                temp(args);
         }
     }
 }

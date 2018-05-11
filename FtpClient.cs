@@ -31,12 +31,14 @@ namespace FtpServer
             user = new User();
             this.request = new FtpRequest(this);
             this.currentSocket = socket;
-            encode = Encoding.Default;
+            this.IP = ((IPEndPoint)currentSocket.RemoteEndPoint).Address;
+            encode = Encoding.UTF8;
         }
 
         public IPAddress IP
         {
-            get { return ((IPEndPoint)currentSocket.RemoteEndPoint).Address; }
+            get;
+            private set;
         }
 
         public void Start()
@@ -318,7 +320,7 @@ namespace FtpServer
                 }
             }
             else
-                encode = Encoding.Default;
+                encode = Encoding.Unicode;
         }
 
         //列表当前目录文件
@@ -385,8 +387,7 @@ namespace FtpServer
         {
             if (tempSocket != null && tempSocket.Connected)
             {
-                sendMsg(encode.GetBytes(msg.ToCharArray()), tempSocket);
-                //sendMsg(Encoding.Default.GetBytes(msg.ToCharArray()), tempSocket);
+                sendMsg(encode.GetBytes(msg), tempSocket);
                 tempSocket.Close();
             }
         }
@@ -466,7 +467,7 @@ namespace FtpServer
                         if (index > -1)
                         {
                             // token.tokens = msg.Split(new char[] { ' ' });
-                             token.tokens = new string[2]{
+                            token.tokens = new string[2]{
                              msg.Substring(0, index),
                              msg.Substring(index+1, msg.Length- index-1)
                             };

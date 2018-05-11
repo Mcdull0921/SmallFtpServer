@@ -38,7 +38,7 @@ namespace FtpServer
             }
         }
 
-        void server_clientChange(FtpClient client)
+        void server_clientChange(FtpServer.ClientArgs args)
         {
             this.Invoke(new Action(() =>
             {
