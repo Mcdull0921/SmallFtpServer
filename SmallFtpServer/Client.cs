@@ -31,6 +31,8 @@ namespace SmallFtpServer
             var commandType = (CommandType)Enum.Parse(typeof(CommandType), cmd);
             if (!commands.ContainsKey(commandType))
                 throw new Exception(FormatMsg(ResultCode.UnKownCommand));
+            var command = commands[commandType];
+            command.Process();
         }
 
         public string FormatMsg(ResultCode code)

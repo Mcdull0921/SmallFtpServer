@@ -7,7 +7,8 @@ namespace Test
     {
         static void Main(string[] args)
         {
-            FtpServer client = new FtpServer();
+            FtpServer ftpServer = new FtpServer();
+            ftpServer.Test();
 
             Console.ReadKey();
         }
