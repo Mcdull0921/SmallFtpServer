@@ -15,7 +15,9 @@ namespace SmallFtpServer.Commands
 
         public override void Process(params string[] objs)
         {
-            throw new NotImplementedException();
+            if (objs.Length < 1)
+                throw new ArgumentException("参数错误！");
+            client.currentUser.username = objs[0];
         }
     }
 }
