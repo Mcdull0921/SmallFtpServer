@@ -7,10 +7,9 @@ namespace SmallFtpServer
 {
     class Client
     {
-        public Dictionary<CommandType, Command> commands;
         public UserInfo currentUser;
 
-        RequestHandle requestHandle;
+        Dictionary<CommandType, Command> commands;
         public Client()
         {
             commands = new Dictionary<CommandType, Command>();
@@ -22,26 +21,19 @@ namespace SmallFtpServer
                     commands.Add(command.CommandType, command);
                 }
             }
-            requestHandle = new RequestHandle(this);
             currentUser = new UserInfo();
         }
 
         public void Handle(string cmd)
         {
-            var commandType = (CommandType)Enum.Parse(typeof(CommandType), cmd);
+            object obj;
+            if (!Enum.TryParse(typeof(CommandType), cmd, true, out obj))
+                throw new Exception(Command.FormatMsg(ResultCode.UnKownCommand));
+            CommandType commandType = (CommandType)obj;
             if (!commands.ContainsKey(commandType))
-                throw new Exception(FormatMsg(ResultCode.UnKownCommand));
+                throw new Exception(Command.FormatMsg(ResultCode.UnKownCommand));
             var command = commands[commandType];
             command.Process();
-        }
-
-        public string FormatMsg(ResultCode code)
-        {
-            switch (code)
-            {
-                default:
-                    return string.Format("{0} {1}", (int)code, code.GetDescription());
-            }
         }
     }
 }

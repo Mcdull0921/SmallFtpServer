@@ -7,7 +7,7 @@ namespace SmallFtpServer
         Client client = new Client();
         public void Test()
         {
-            client.Handle("LOGIN_USER");
+            client.Handle("USER");
         }
     }
 }

@@ -4,14 +4,14 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
-    class Login_User_Command : Command
+    class UserCommand : Command
     {
-        public Login_User_Command(Client client) : base(client)
+        public UserCommand(Client client) : base(client)
         {
 
         }
 
-        public override CommandType CommandType => CommandType.LOGIN_USER;
+        public override CommandType CommandType => CommandType.USER;
 
         public override void Process(params string[] objs)
         {
