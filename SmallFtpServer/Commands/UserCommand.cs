@@ -17,7 +17,7 @@ namespace SmallFtpServer.Commands
         {
             if (objs.Length < 1)
                 throw new ArgumentException("参数错误！");
-            client.currentUser.username = objs[0];
+            //client.currentUser.username = objs[0];
         }
     }
 }

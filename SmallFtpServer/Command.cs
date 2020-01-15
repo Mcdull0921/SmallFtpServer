@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SmallFtpServer.Models;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,14 +14,5 @@ namespace SmallFtpServer
         }
         public abstract void Process(params string[] objs);
         public abstract CommandType CommandType { get; }
-
-        public static string FormatMsg(ResultCode code)
-        {
-            switch (code)
-            {
-                default:
-                    return string.Format("{0} {1}", (int)code, code.GetDescription());
-            }
-        }
     }
 }
