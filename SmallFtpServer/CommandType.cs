@@ -17,7 +17,19 @@ namespace SmallFtpServer
         /// <summary>
         /// 服务器系统信息
         /// </summary>
-        SYST
-       
+        SYST,
+        /// <summary>
+        /// 传输编码
+        /// </summary>
+        OPTS,
+        /// <summary>
+        /// 当前目录
+        /// </summary>
+        XPWD,
+        /// <summary>
+        /// 退出登录
+        /// </summary>
+        QUIT
+
     }
 }

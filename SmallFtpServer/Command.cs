@@ -12,7 +12,7 @@ namespace SmallFtpServer
         {
             this.client = client;
         }
-        public abstract void Process(params string[] objs);
+        public abstract void Process(params string[] args);
         public abstract CommandType CommandType { get; }
     }
 }

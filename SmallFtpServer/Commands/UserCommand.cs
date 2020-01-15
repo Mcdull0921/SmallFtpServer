@@ -1,4 +1,6 @@
-﻿using System;
+﻿using SmallFtpServer.Exceptions;
+using SmallFtpServer.Models;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -13,11 +15,12 @@ namespace SmallFtpServer.Commands
 
         public override CommandType CommandType => CommandType.USER;
 
-        public override void Process(params string[] objs)
+        public override void Process(params string[] args)
         {
-            if (objs.Length < 1)
-                throw new ArgumentException("参数错误！");
-            //client.currentUser.username = objs[0];
+            if (args.Length < 1)
+                throw new ArgumentErrorException();
+            client.LoginInfo.username = args[0];
+            client.Send(ResultCode.NeedPassword.ConvertString());
         }
     }
 }

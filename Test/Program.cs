@@ -11,9 +11,8 @@ namespace Test
  
         static void Main(string[] args)
         {
-            FtpServer ftpServer = new FtpServer(21, 3, new UserInfo { username = "test", password = "123", dir = "d:\\" });
+            FtpServer ftpServer = new FtpServer(21, 3, new UserInfo { username = "test", password = "123", rootdirectory = "d:\\" });
             ftpServer.Listen();
-
 
 
             Console.ReadKey();

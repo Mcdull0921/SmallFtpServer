@@ -1,4 +1,5 @@
-﻿using SmallFtpServer.Models;
+﻿using SmallFtpServer.Exceptions;
+using SmallFtpServer.Models;
 using System;
 using System.Collections.Generic;
 using System.Net.Sockets;
@@ -11,15 +12,18 @@ namespace SmallFtpServer
 {
     class Client
     {
-        public LoginUser CurrentUser { get; private set; }
+        public LoginInfo LoginInfo { get; private set; }
+        public IEnumerable<UserInfo> Users { get; private set; }
         public string Id { get; private set; }
+        public event Action<Client> OnClose;
 
-        IEnumerable<UserInfo> users;
+
         Dictionary<CommandType, Command> commands;
         Socket currentSocket;
         CancellationTokenSource cts;
         CancellationToken token;
-        public event Action<Client> OnClose;
+        Encoding defaultEncoding = Encoding.UTF8;
+
         public Client(Socket socket, IEnumerable<UserInfo> users)
         {
             Id = Guid.NewGuid().ToString();
@@ -32,23 +36,40 @@ namespace SmallFtpServer
                     commands.Add(command.CommandType, command);
                 }
             }
-            CurrentUser = new LoginUser();
-            this.users = users;
+            LoginInfo = new LoginInfo();
+            this.Users = users;
             this.currentSocket = socket;
             cts = new CancellationTokenSource();
             token = cts.Token;
         }
 
-        private void Handle(string[] cmd)
+        private void Handle(CommandMsg commandMsg)
         {
-            //object obj;
-            //if (!Enum.TryParse(typeof(CommandType), cmd, true, out obj))
-            //    throw new Exception(Command.FormatMsg(ResultCode.UnKownCommand));
-            //CommandType commandType = (CommandType)obj;
-            //if (!commands.ContainsKey(commandType))
-            //    throw new Exception(Command.FormatMsg(ResultCode.UnKownCommand));
-            //var command = commands[commandType];
-            //command.Process();
+            try
+            {
+                Console.WriteLine(commandMsg);
+                object obj;
+                if (!Enum.TryParse(typeof(CommandType), commandMsg.cmd, true, out obj))
+                    throw new UnKownCommandException();
+                CommandType commandType = (CommandType)obj;
+                if (!commands.ContainsKey(commandType))
+                    throw new UnKownCommandException();
+                var command = commands[commandType];
+                AuthenticationAttribute authentication = command.GetType().GetCustomAttribute<AuthenticationAttribute>();
+                if (authentication != null && LoginInfo.user == null)
+                    throw new NeedLoginException();
+                command.Process(commandMsg.args);
+            }
+            catch (FtpException ex)
+            {
+                Send(ex.Message);
+                if (ex is CloseConnectException)
+                    Close();
+            }
+            catch (Exception ex)
+            {
+                Send(ResultCode.CloseConnect.ConvertString());
+            }
         }
 
         public void Start()
@@ -59,8 +80,8 @@ namespace SmallFtpServer
                 while (true)
                 {
                     token.ThrowIfCancellationRequested();
-                    var commands = Receive();
-                    foreach (var c in commands)
+                    var msgs = Receive();
+                    foreach (var c in msgs)
                         Handle(c);
                 }
             });
@@ -78,29 +99,30 @@ namespace SmallFtpServer
             OnClose?.Invoke(this);
         }
 
-        private List<string[]> Receive()
+        private List<CommandMsg> Receive()
         {
-            List<string[]> res = new List<string[]>();
+            var res = new List<CommandMsg>();
             byte[] buff = new byte[1024];
             try
             {
                 currentSocket.Receive(buff);
-                string clientCommand = Encoding.ASCII.GetString(buff);
+                string clientCommand = defaultEncoding.GetString(buff);
                 clientCommand = clientCommand.Trim("\0".ToCharArray());
+                if (clientCommand.Length == 0)
+                    throw new CloseConnectException();
                 clientCommand = clientCommand.Trim("\r\n".ToCharArray());//"PORT 192,168,0,105,51,49\r\nLIST\r\n"这种情况怎么处理，2条命令同时发来
                 var msgs = clientCommand.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                 foreach (var msg in msgs)
                 {
-                    var command = new string[2];
                     if (msg.Length > 0)
                     {
                         var index = msg.IndexOf(" ");
                         if (index > -1)
                         {
-                            res.Add(new string[] { msg.Substring(0, index), msg.Substring(index + 1, msg.Length - index - 1) });
+                            res.Add(new CommandMsg(msg.Substring(0, index), msg.Substring(index + 1, msg.Length - index - 1)));
                         }
                         else
-                            res.Add(new string[] { msg });
+                            res.Add(new CommandMsg(msg));
                     }
                 }
             }
@@ -111,10 +133,10 @@ namespace SmallFtpServer
             return res;
         }
 
-        private void Send(string message)
+        public void Send(string message)
         {
             message += "\r\n";
-            Send(Encoding.ASCII.GetBytes(message.ToCharArray()));
+            Send(defaultEncoding.GetBytes(message.ToCharArray()));
         }
 
         private void Send(byte[] bytes)

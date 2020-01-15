@@ -8,6 +8,6 @@ namespace SmallFtpServer.Models
     {
         public string username { get; set; }
         public string password { get; set; }
-        public string dir { get; set; }
+        public string rootdirectory { get; set; }
     }
 }
