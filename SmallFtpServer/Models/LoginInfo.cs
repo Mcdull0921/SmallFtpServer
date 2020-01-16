@@ -1,20 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.IO;
 
 namespace SmallFtpServer.Models
 {
     class LoginInfo
     {
         public string username { get; set; }
-        public string currentDir { get; set; }
-        public UserInfo user { get; set; }
-        public string rootDir
+        public DirectoryInfo currentDir { get; private set; }
+        public DirectoryInfo rootDir { get; private set; }
+        public bool islogin { get; private set; }
+
+        public void Login(UserInfo user)
         {
-            get
-            {
-                return user?.rootdirectory;
-            }
+            rootDir = new DirectoryInfo(user.rootdirectory);
+            currentDir = new DirectoryInfo(user.rootdirectory);
+            islogin = true;
+        }
+
+        public void LoginOut()
+        {
+            username = null;
+            islogin = false;
         }
     }
 }

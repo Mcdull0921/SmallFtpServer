@@ -7,6 +7,12 @@ namespace SmallFtpServer.Models
 {
     enum ResultCode
     {
+        [Description("开始数据传输连接")]
+        BeginTransmit = 150,
+        [Description("关闭数据连接，文件传输终止")]
+        EndTransmit = 226,
+        [Description("Entering Passive Mode ({0})")]
+        PasvMode = 227,
         [Description("Success:{0}")]
         Success = 200,
         [Description("Welcome")]
@@ -28,6 +34,8 @@ namespace SmallFtpServer.Models
         [Description("登录成功")]
         Login = 230,
         [Description("账号或密码错误，无法登录")]
-        UnLogin = 530
+        UnLogin = 530,
+        [Description("文件无效:{0}")]
+        InvalidFile = 550
     }
 }

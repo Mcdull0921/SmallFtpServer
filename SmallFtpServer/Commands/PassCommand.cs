@@ -6,6 +6,7 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
+    [Argument(1)]
     class PassCommand : Command
     {
         public PassCommand(Client client) : base(client)
@@ -17,16 +18,13 @@ namespace SmallFtpServer.Commands
 
         public override void Process(params string[] args)
         {
-            if (args.Length < 1)
-                throw new ArgumentErrorException();
             if (string.IsNullOrEmpty(client.LoginInfo.username))
                 throw new NeedLoginException();
             if (Login(client.LoginInfo.username, args[0]))
                 client.Send(ResultCode.Login.ConvertString());
             else
             {
-                client.LoginInfo.user = null;
-                client.LoginInfo.username = null;
+                client.LoginInfo.LoginOut();
                 client.Send(ResultCode.UnLogin.ConvertString());
             }
         }
@@ -37,8 +35,7 @@ namespace SmallFtpServer.Commands
             {
                 if (u.username.Equals(username) && u.password.Equals(password))
                 {
-                    client.LoginInfo.currentDir = u.rootdirectory;
-                    client.LoginInfo.user = u;
+                    client.LoginInfo.Login(u);
                     return true;
                 }
             }

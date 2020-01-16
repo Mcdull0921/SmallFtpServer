@@ -6,6 +6,7 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
+    [Argument(1)]
     class UserCommand : Command
     {
         public UserCommand(Client client) : base(client)
@@ -17,8 +18,6 @@ namespace SmallFtpServer.Commands
 
         public override void Process(params string[] args)
         {
-            if (args.Length < 1)
-                throw new ArgumentErrorException();
             client.LoginInfo.username = args[0];
             client.Send(ResultCode.NeedPassword.ConvertString());
         }

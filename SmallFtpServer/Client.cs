@@ -1,7 +1,9 @@
-﻿using SmallFtpServer.Exceptions;
+﻿using SmallFtpServer.Commands;
+using SmallFtpServer.Exceptions;
 using SmallFtpServer.Models;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
@@ -12,6 +14,7 @@ namespace SmallFtpServer
 {
     class Client
     {
+        public TcpListener pasvListener { get; private set; }
         public LoginInfo LoginInfo { get; private set; }
         public IEnumerable<UserInfo> Users { get; private set; }
         public string Id { get; private set; }
@@ -24,7 +27,7 @@ namespace SmallFtpServer
         CancellationToken token;
         Encoding defaultEncoding = Encoding.UTF8;
 
-        public Client(Socket socket, IEnumerable<UserInfo> users)
+        public Client(Socket socket, IEnumerable<UserInfo> users, IPAddress serverIP, int pasvPort)
         {
             Id = Guid.NewGuid().ToString();
             commands = new Dictionary<CommandType, Command>();
@@ -41,6 +44,7 @@ namespace SmallFtpServer
             this.currentSocket = socket;
             cts = new CancellationTokenSource();
             token = cts.Token;
+            pasvListener = new TcpListener(serverIP, pasvPort);
         }
 
         private void Handle(CommandMsg commandMsg)
@@ -55,8 +59,11 @@ namespace SmallFtpServer
                 if (!commands.ContainsKey(commandType))
                     throw new UnKownCommandException();
                 var command = commands[commandType];
+                ArgumentAttribute argument = command.GetType().GetCustomAttribute<ArgumentAttribute>();
+                if (argument != null && commandMsg.args.Length < argument.ArgsNumber)
+                    throw new ArgumentErrorException();
                 AuthenticationAttribute authentication = command.GetType().GetCustomAttribute<AuthenticationAttribute>();
-                if (authentication != null && LoginInfo.user == null)
+                if (authentication != null && !LoginInfo.islogin)
                     throw new NeedLoginException();
                 command.Process(commandMsg.args);
             }
@@ -69,6 +76,7 @@ namespace SmallFtpServer
             catch (Exception ex)
             {
                 Send(ResultCode.CloseConnect.ConvertString());
+                Close();
             }
         }
 
