@@ -16,7 +16,6 @@ namespace SmallFtpServer.Commands
 
         public override void Process(params string[] args)
         {
-
         }
     }
 }

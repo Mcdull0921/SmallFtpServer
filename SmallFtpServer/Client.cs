@@ -14,7 +14,9 @@ namespace SmallFtpServer
 {
     class Client
     {
-        public TcpListener pasvListener { get; private set; }
+        public TcpListener PasvListener { get; private set; }
+        public IPAddress PasvIP { get; set; }
+        public int PasvPort { get; set; }
         public LoginInfo LoginInfo { get; private set; }
         public IEnumerable<UserInfo> Users { get; private set; }
         public string Id { get; private set; }
@@ -27,7 +29,7 @@ namespace SmallFtpServer
         CancellationToken token;
         Encoding defaultEncoding = Encoding.UTF8;
 
-        public Client(Socket socket, IEnumerable<UserInfo> users, IPAddress serverIP, int pasvPort)
+        public Client(Socket socket, IEnumerable<UserInfo> users, IPAddress pasvIP, int pasvPort)
         {
             Id = Guid.NewGuid().ToString();
             commands = new Dictionary<CommandType, Command>();
@@ -44,7 +46,9 @@ namespace SmallFtpServer
             this.currentSocket = socket;
             cts = new CancellationTokenSource();
             token = cts.Token;
-            pasvListener = new TcpListener(serverIP, pasvPort);
+            PasvListener = new TcpListener(pasvIP, pasvPort);
+            PasvIP = pasvIP;
+            PasvPort = pasvPort;
         }
 
         private void Handle(CommandMsg commandMsg)
