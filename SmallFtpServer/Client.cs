@@ -15,21 +15,19 @@ namespace SmallFtpServer
     class Client
     {
         public TcpListener PasvListener { get; private set; }
-        public IPAddress PasvIP { get; set; }
-        public int PasvPort { get; set; }
         public LoginInfo LoginInfo { get; private set; }
         public IEnumerable<UserInfo> Users { get; private set; }
         public string Id { get; private set; }
         public event Action<Client> OnClose;
 
-
         Dictionary<CommandType, Command> commands;
         Socket currentSocket;
+        Socket transSocket;
         CancellationTokenSource cts;
         CancellationToken token;
         Encoding defaultEncoding = Encoding.UTF8;
 
-        public Client(Socket socket, IEnumerable<UserInfo> users, IPAddress pasvIP, int pasvPort)
+        public Client(Socket socket, IEnumerable<UserInfo> users, TcpListener pasvListener)
         {
             Id = Guid.NewGuid().ToString();
             commands = new Dictionary<CommandType, Command>();
@@ -46,16 +44,13 @@ namespace SmallFtpServer
             this.currentSocket = socket;
             cts = new CancellationTokenSource();
             token = cts.Token;
-            PasvListener = new TcpListener(pasvIP, pasvPort);
-            PasvIP = pasvIP;
-            PasvPort = pasvPort;
+            PasvListener = pasvListener;
         }
 
         private void Handle(CommandMsg commandMsg)
         {
             try
             {
-                Console.WriteLine(commandMsg);
                 object obj;
                 if (!Enum.TryParse(typeof(CommandType), commandMsg.cmd, true, out obj))
                     throw new UnKownCommandException();
@@ -128,6 +123,7 @@ namespace SmallFtpServer
                 {
                     if (msg.Length > 0)
                     {
+                        Console.WriteLine(msg);
                         var index = msg.IndexOf(" ");
                         if (index > -1)
                         {
@@ -148,14 +144,40 @@ namespace SmallFtpServer
         public void Send(string message)
         {
             message += "\r\n";
-            Send(defaultEncoding.GetBytes(message.ToCharArray()));
+            Send(currentSocket, defaultEncoding.GetBytes(message.ToCharArray()));
         }
 
-        private void Send(byte[] bytes)
+        public void SendDatas(string datas)
+        {
+            SendDatas(defaultEncoding.GetBytes(datas.ToCharArray()));
+        }
+
+        public void SendDatas(byte[] datas)
+        {
+            if (datas.Length > 0)
+            {
+                if (transSocket != null && transSocket.Connected)
+                {
+                    Send(transSocket, datas);
+                    transSocket.Close();
+                }
+                else
+                {
+                    throw new CannotTransmitException();
+                }
+            }
+        }
+
+        public void SetTransSockect(Socket socket)
+        {
+            transSocket = socket;
+        }
+
+        private void Send(Socket socket, byte[] bytes)
         {
             try
             {
-                currentSocket.Send(bytes, bytes.Length, 0);
+                socket.Send(bytes, bytes.Length, 0);
             }
             catch
             {

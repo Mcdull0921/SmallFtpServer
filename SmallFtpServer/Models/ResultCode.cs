@@ -9,8 +9,10 @@ namespace SmallFtpServer.Models
     {
         [Description("开始数据传输连接")]
         BeginTransmit = 150,
-        [Description("关闭数据连接，文件传输终止")]
+        [Description("关闭数据连接，传输终止")]
         EndTransmit = 226,
+        [Description("无法打开数据连接")]
+        CantTransmit = 425,
         [Description("Entering Passive Mode ({0})")]
         PasvMode = 227,
         [Description("Success:{0}")]
@@ -23,7 +25,9 @@ namespace SmallFtpServer.Models
         CloseConnect = 221,
         [Description("系统信息:{0}")]
         SystemInfo = 215,
-        [Description("当前目录:{0}")]
+        [Description("操作完成:{0}")]
+        FileComplete = 250,
+        [Description("当前目录\"{0}\"")]
         PrintWorkDirectory = 257,
         [Description("参数错误")]
         ArgumentError = 504,
@@ -35,7 +39,9 @@ namespace SmallFtpServer.Models
         Login = 230,
         [Description("账号或密码错误，无法登录")]
         UnLogin = 530,
-        [Description("文件无效:{0}")]
-        InvalidFile = 550
+        [Description("文件或目录无效:\"{0}\"")]
+        InvalidFile = 550,
+        [Description("指定的路径无效:\"{0}\"")]
+        InvalidFilePath = 553
     }
 }

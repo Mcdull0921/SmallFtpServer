@@ -16,7 +16,16 @@ namespace SmallFtpServer.Models
 
         public CommandMsg(string cmd)
         {
-            this.cmd = cmd;
+            this.cmd = cmd.ToUpper();
+            switch (this.cmd)
+            {
+                case "PWD":
+                    this.cmd = "XPWD";
+                    break;
+                case "MKD":
+                    this.cmd = "XMKD";
+                    break;
+            }
             this.args = new string[0];
         }
 

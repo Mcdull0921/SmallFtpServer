@@ -18,10 +18,7 @@ namespace SmallFtpServer.Commands
 
         public override void Process(params string[] args)
         {
-            Uri rootpath = new Uri(client.LoginInfo.rootDir.FullName, UriKind.Absolute);
-            Uri currentpath = new Uri(client.LoginInfo.currentDir.FullName, UriKind.Absolute);
-            Uri path = rootpath.MakeRelativeUri(currentpath);
-            client.Send(ResultCode.PrintWorkDirectory.ConvertString("/" + path.OriginalString));
+            client.Send(ResultCode.PrintWorkDirectory.ConvertString(client.LoginInfo.CurrentVirtualPath));
         }
 
 

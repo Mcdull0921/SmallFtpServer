@@ -8,10 +8,10 @@ namespace Test
 {
     class Program
     {
- 
+
         static void Main(string[] args)
         {
-            FtpServer ftpServer = new FtpServer(21, 3, new UserInfo { username = "test", password = "123", rootdirectory = "d:\\" });
+            FtpServer ftpServer = new FtpServer(users: new UserInfo { username = "test", password = "123", rootdirectory = "d:\\" });
             ftpServer.Listen();
 
 
