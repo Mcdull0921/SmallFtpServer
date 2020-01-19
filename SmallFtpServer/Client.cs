@@ -72,6 +72,8 @@ namespace SmallFtpServer
             catch (FtpException ex)
             {
                 Send(ex.Message);
+                if (transSocket != null)
+                    transSocket.Close();
                 if (ex is CloseConnectException)
                     Close();
             }
@@ -99,6 +101,8 @@ namespace SmallFtpServer
 
         public void Dispose()
         {
+            if (transSocket != null)
+                transSocket.Close();
             currentSocket.Close();
             cts.Cancel();
         }

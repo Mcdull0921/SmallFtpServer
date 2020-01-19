@@ -11,7 +11,8 @@ namespace SmallFtpServer.Models
         public CommandMsg(string cmd, string args)
         {
             this.cmd = cmd;
-            this.args = args.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            //this.args = args.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            this.args = new string[] { args };
         }
 
         public CommandMsg(string cmd)
