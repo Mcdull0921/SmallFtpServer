@@ -29,6 +29,8 @@ namespace SmallFtpServer.Models
         FileComplete = 250,
         [Description("当前目录\"{0}\"")]
         PrintWorkDirectory = 257,
+        [Description("")]
+        MoreFileInfo = 350,
         [Description("参数错误")]
         ArgumentError = 504,
         [Description("已输入用户名，需要口令")]

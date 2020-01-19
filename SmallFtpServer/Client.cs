@@ -3,6 +3,7 @@ using SmallFtpServer.Exceptions;
 using SmallFtpServer.Models;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
@@ -14,12 +15,13 @@ namespace SmallFtpServer
 {
     class Client
     {
-        public TcpListener PasvListener { get; private set; }
         public LoginInfo LoginInfo { get; private set; }
         public IEnumerable<UserInfo> Users { get; private set; }
         public string Id { get; private set; }
         public event Action<Client> OnClose;
 
+        TcpListener pasvListener;
+        IPEndPoint pasvEndPoint;
         Dictionary<CommandType, Command> commands;
         Socket currentSocket;
         Socket transSocket;
@@ -27,7 +29,7 @@ namespace SmallFtpServer
         CancellationToken token;
         Encoding defaultEncoding = Encoding.UTF8;
 
-        public Client(Socket socket, IEnumerable<UserInfo> users, TcpListener pasvListener)
+        public Client(Socket socket, IEnumerable<UserInfo> users, TcpListener pasvListener, IPEndPoint pasvEndPoint = null)
         {
             Id = Guid.NewGuid().ToString();
             commands = new Dictionary<CommandType, Command>();
@@ -44,7 +46,8 @@ namespace SmallFtpServer
             this.currentSocket = socket;
             cts = new CancellationTokenSource();
             token = cts.Token;
-            PasvListener = pasvListener;
+            this.pasvListener = pasvListener;
+            this.pasvEndPoint = pasvEndPoint;
         }
 
         private void Handle(CommandMsg commandMsg)
@@ -168,9 +171,79 @@ namespace SmallFtpServer
             }
         }
 
-        public void SetTransSockect(Socket socket)
+        public bool ReceiveFile(string path)
         {
-            transSocket = socket;
+            FileInfo fi = new FileInfo(path);
+            if (fi.Exists)
+                return false;
+            if (transSocket != null && transSocket.Connected)
+            {
+                string dir = Path.GetDirectoryName(path);
+                if (!Directory.Exists(dir))
+                {
+                    Directory.CreateDirectory(dir);
+                }
+                byte[] buffer = new byte[1024];
+                using (FileStream fs = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.Write))
+                {
+                    fs.Seek(0, SeekOrigin.Begin);
+                    int length = 0;
+                    do
+                    {
+                        length = transSocket.Receive(buffer);
+                        fs.Write(buffer, 0, length);
+                    }
+                    while (length > 0);
+                    fs.Close();    //这句话可能是多余的
+                }
+                return true;
+            }
+            else
+            {
+                throw new CannotTransmitException();
+            }
+        }
+
+        public IPEndPoint PasvEndPoint
+        {
+            get
+            {
+                if (pasvEndPoint == null)
+                    return (IPEndPoint)pasvListener.LocalEndpoint;
+                return pasvEndPoint;
+            }
+        }
+
+        public void SetPasvSocket()
+        {
+            int timeout = 5000;
+            while (timeout-- > 0)
+            {
+                if (pasvListener.Pending())
+                {
+                    transSocket = pasvListener.AcceptSocket();
+                    return;
+                }
+                Thread.Sleep(500);
+            }
+            throw new CannotTransmitException();
+        }
+
+        public void SetPortSocket(IPAddress ip, int port)
+        {
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            socket.SetSocketOption(SocketOptionLevel.Socket, SocketOptionName.SendTimeout, 5000);
+            IPEndPoint hostEndPoint = new IPEndPoint(ip, port);
+            try
+            {
+                socket.Connect(hostEndPoint);
+                transSocket = socket;
+            }
+            catch (SocketException ex)
+            {
+                Console.WriteLine("PORT连接失败：{0}", ex.Message);
+                throw new CannotTransmitException();
+            }
         }
 
         private void Send(Socket socket, byte[] bytes)

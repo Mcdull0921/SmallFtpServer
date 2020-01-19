@@ -13,16 +13,18 @@ namespace SmallFtpServer
         IEnumerable<UserInfo> users;
         TcpListener listener;
         TcpListener pasvListener;
+        IPEndPoint pasvEndPoint;
         Thread mainThread;
         int maxConnect;
 
-        public FtpServer(int port = 21, int max_connect = 100, string pasv_IP = "", int pasv_port = 5379, params UserInfo[] users)
+        public FtpServer(int port = 21, int pasv_port = 20, int max_connect = 100, IPEndPoint pasvEndPoint = null, params UserInfo[] users)
         {
             this.users = users;
             maxConnect = max_connect;
             clients = new List<Client>();
             listener = new TcpListener(IPAddress.Any, port);
-            pasvListener = new TcpListener(string.IsNullOrEmpty(pasv_IP) ? IPAddress.Any : IPAddress.Parse(pasv_IP), pasv_port);
+            pasvListener = new TcpListener(IPAddress.Any, pasv_port);
+            this.pasvEndPoint = pasvEndPoint;
         }
 
         public bool IsListening
@@ -45,7 +47,7 @@ namespace SmallFtpServer
                             {
                                 listener.Start();
                                 Socket socket = listener.AcceptSocket();
-                                Client client = new Client(socket, users, pasvListener);
+                                Client client = new Client(socket, users, pasvListener, pasvEndPoint);
                                 client.OnClose += Client_OnClose;
                                 clients.Add(client);
                                 client.Start();

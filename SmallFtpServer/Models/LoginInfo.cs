@@ -9,6 +9,7 @@ namespace SmallFtpServer.Models
     {
         public string username { get; set; }
         public bool islogin { get; private set; }
+        public string rename_filename { get; set; }
 
         DirectoryInfo currentDir;
         DirectoryInfo rootDir;
