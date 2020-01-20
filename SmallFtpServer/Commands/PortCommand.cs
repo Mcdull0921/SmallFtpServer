@@ -8,15 +8,16 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
-    [Authentication, Argument(1)]
+    /// <summary>
+    /// 主动模式，从客户端接受客户端监听端口，主动和客户端建立连接
+    /// </summary>
+    [FtpCommand("PORT", 1, true)]
     class PortCommand : Command
     {
         public PortCommand(Client client) : base(client)
         {
 
         }
-
-        public override CommandType CommandType => CommandType.PORT;
 
         public override void Process(params string[] args)
         {

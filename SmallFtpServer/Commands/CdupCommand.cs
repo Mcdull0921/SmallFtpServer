@@ -6,15 +6,16 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
-    [Authentication]
+    /// <summary>
+    /// 跳转到上一级目录
+    /// </summary>
+    [FtpCommand("CDUP", needLogin: true)]
     class CdupCommand : Command
     {
         public CdupCommand(Client client) : base(client)
         {
 
         }
-
-        public override CommandType CommandType => CommandType.CDUP;
 
         public override void Process(params string[] args)
         {

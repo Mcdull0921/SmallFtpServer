@@ -7,14 +7,17 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
-    [Authentication, Argument(1)]
-    class XmkdCommand : Command
+    /// <summary>
+    /// 新建文件夹
+    /// </summary>
+    [FtpCommand("MKD", 1, true)]
+    [FtpCommand("XMKD", 1, true)]
+    class MkdCommand : Command
     {
-        public XmkdCommand(Client client) : base(client)
+        public MkdCommand(Client client) : base(client)
         {
 
         }
-        public override CommandType CommandType => CommandType.XMKD;
 
         public override void Process(params string[] args)
         {

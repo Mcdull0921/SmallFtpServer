@@ -5,13 +5,16 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
+    /// <summary>
+    /// 服务器系统信息
+    /// </summary>
+    [FtpCommand("SYST")]
     class SystCommand : Command
     {
         public SystCommand(Client client) : base(client)
         {
 
         }
-        public override CommandType CommandType => CommandType.SYST;
 
         public override void Process(params string[] objs)
         {

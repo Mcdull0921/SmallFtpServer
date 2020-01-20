@@ -6,15 +6,16 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
-    [Authentication, Argument(1)]
+    /// <summary>
+    /// 跳转目录
+    /// </summary>
+    [FtpCommand("CWD", 1, true)]
     class CwdCommand : Command
     {
         public CwdCommand(Client client) : base(client)
         {
 
         }
-
-        public override CommandType CommandType => CommandType.CWD;
 
         public override void Process(params string[] args)
         {

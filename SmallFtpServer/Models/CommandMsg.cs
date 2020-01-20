@@ -8,26 +8,11 @@ namespace SmallFtpServer.Models
     {
         public string cmd { get; private set; }
         public string[] args { get; private set; }
-        public CommandMsg(string cmd, string args)
-        {
-            this.cmd = cmd;
-            //this.args = args.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
-            this.args = new string[] { args };
-        }
-
-        public CommandMsg(string cmd)
+        public CommandMsg(string cmd, string args = null)
         {
             this.cmd = cmd.ToUpper();
-            switch (this.cmd)
-            {
-                case "PWD":
-                    this.cmd = "XPWD";
-                    break;
-                case "MKD":
-                    this.cmd = "XMKD";
-                    break;
-            }
-            this.args = new string[0];
+            //this.args = args.Split(" ".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
+            this.args = string.IsNullOrEmpty(args) ? new string[0] : new string[] { args };
         }
 
         public override string ToString()

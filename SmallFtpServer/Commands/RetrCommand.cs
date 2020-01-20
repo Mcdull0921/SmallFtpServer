@@ -7,15 +7,16 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
-    [Authentication, Argument(1)]
+    /// <summary>
+    /// 获取文件
+    /// </summary>
+    [FtpCommand("RETR", 1, true)]
     class RetrCommand : Command
     {
         public RetrCommand(Client client) : base(client)
         {
 
         }
-
-        public override CommandType CommandType => CommandType.RETR;
 
         public override void Process(params string[] args)
         {

@@ -8,15 +8,16 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
-    [Authentication]
+    /// <summary>
+    /// 被动模式，向客户端传输服务端数据传输监听端口
+    /// </summary>
+    [FtpCommand("PASV", needLogin: true)]
     class PasvCommand : Command
     {
         public PasvCommand(Client client) : base(client)
         {
 
         }
-
-        public override CommandType CommandType => CommandType.PASV;
 
         public override void Process(params string[] args)
         {

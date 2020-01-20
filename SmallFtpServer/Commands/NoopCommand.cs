@@ -5,13 +5,16 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
+    /// <summary>
+    /// 空指令
+    /// </summary>
+    [FtpCommand("NOOP")]
     class NoopCommand : Command
     {
         public NoopCommand(Client client) : base(client)
         {
 
         }
-        public override CommandType CommandType => CommandType.NOOP;
 
         public override void Process(params string[] args)
         {

@@ -22,7 +22,7 @@ namespace SmallFtpServer
 
         TcpListener pasvListener;
         IPEndPoint pasvEndPoint;
-        Dictionary<CommandType, Command> commands;
+        Dictionary<string, Tuple<Command, FtpCommandAttribute>> commands;
         Socket currentSocket;
         Socket transSocket;
         CancellationTokenSource cts;
@@ -32,18 +32,21 @@ namespace SmallFtpServer
         public Client(Socket socket, IEnumerable<UserInfo> users, TcpListener pasvListener, IPEndPoint pasvEndPoint = null)
         {
             Id = Guid.NewGuid().ToString();
-            commands = new Dictionary<CommandType, Command>();
+            commands = new Dictionary<string, Tuple<Command, FtpCommandAttribute>>();
             foreach (var t in Assembly.GetExecutingAssembly().GetTypes())
             {
                 if (t.IsClass && !t.IsAbstract && typeof(Command).IsAssignableFrom(t))
                 {
                     var command = (Command)Activator.CreateInstance(t, this);
-                    commands.Add(command.CommandType, command);
+                    foreach (var attr in command.GetType().GetCustomAttributes<FtpCommandAttribute>())
+                    {
+                        commands.Add(attr.Name, new Tuple<Command, FtpCommandAttribute>(command, attr));
+                    }
                 }
             }
             LoginInfo = new LoginInfo();
-            this.Users = users;
-            this.currentSocket = socket;
+            Users = users;
+            currentSocket = socket;
             cts = new CancellationTokenSource();
             token = cts.Token;
             this.pasvListener = pasvListener;
@@ -54,20 +57,14 @@ namespace SmallFtpServer
         {
             try
             {
-                object obj;
-                if (!Enum.TryParse(typeof(CommandType), commandMsg.cmd, true, out obj))
+                if (!commands.ContainsKey(commandMsg.cmd))
                     throw new UnKownCommandException();
-                CommandType commandType = (CommandType)obj;
-                if (!commands.ContainsKey(commandType))
-                    throw new UnKownCommandException();
-                var command = commands[commandType];
-                ArgumentAttribute argument = command.GetType().GetCustomAttribute<ArgumentAttribute>();
-                if (argument != null && commandMsg.args.Length < argument.ArgsNumber)
+                var command = commands[commandMsg.cmd];
+                if (commandMsg.args.Length < command.Item2.ArgsNumber)
                     throw new ArgumentErrorException();
-                AuthenticationAttribute authentication = command.GetType().GetCustomAttribute<AuthenticationAttribute>();
-                if (authentication != null && !LoginInfo.islogin)
+                if (command.Item2.NeedLogin && !LoginInfo.islogin)
                     throw new NeedLoginException();
-                command.Process(commandMsg.args);
+                command.Item1.Process(commandMsg.args);
             }
             catch (FtpException ex)
             {
@@ -79,6 +76,7 @@ namespace SmallFtpServer
             }
             catch (Exception ex)
             {
+                Console.WriteLine("全局异常：" + ex.Message);
                 Send(ResultCode.CloseConnect.ConvertString());
                 Close();
             }
@@ -124,7 +122,7 @@ namespace SmallFtpServer
                 clientCommand = clientCommand.Trim("\0".ToCharArray());
                 if (clientCommand.Length == 0)
                     throw new CloseConnectException();
-                clientCommand = clientCommand.Trim("\r\n".ToCharArray());//"PORT 192,168,0,105,51,49\r\nLIST\r\n"这种情况怎么处理，2条命令同时发来
+                clientCommand = clientCommand.Trim("\r\n".ToCharArray());
                 var msgs = clientCommand.Split("\r\n".ToCharArray(), StringSplitOptions.RemoveEmptyEntries);
                 foreach (var msg in msgs)
                 {
@@ -175,11 +173,8 @@ namespace SmallFtpServer
             }
         }
 
-        public bool ReceiveFile(string path)
+        public void ReceiveFile(string path)
         {
-            FileInfo fi = new FileInfo(path);
-            if (fi.Exists)
-                return false;
             if (transSocket != null && transSocket.Connected)
             {
                 string dir = Path.GetDirectoryName(path);
@@ -188,7 +183,7 @@ namespace SmallFtpServer
                     Directory.CreateDirectory(dir);
                 }
                 byte[] buffer = new byte[1024];
-                using (FileStream fs = new FileStream(path, FileMode.CreateNew, FileAccess.Write, FileShare.Write))
+                using (FileStream fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Write))
                 {
                     fs.Seek(0, SeekOrigin.Begin);
                     int length = 0;
@@ -198,14 +193,11 @@ namespace SmallFtpServer
                         fs.Write(buffer, 0, length);
                     }
                     while (length > 0);
-                    fs.Close();    //这句话可能是多余的
+                    fs.Close();
                 }
-                return true;
             }
             else
-            {
                 throw new CannotTransmitException();
-            }
         }
 
         public IPEndPoint PasvEndPoint

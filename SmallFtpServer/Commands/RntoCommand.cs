@@ -7,14 +7,16 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
-    [Authentication, Argument(1)]
+    /// <summary>
+    /// 重命名文件-新的文件名
+    /// </summary>
+    [FtpCommand("RNTO", 1, true)]
     class RntoCommand : Command
     {
         public RntoCommand(Client client) : base(client)
         {
 
         }
-        public override CommandType CommandType => CommandType.RNTO;
 
         public override void Process(params string[] args)
         {

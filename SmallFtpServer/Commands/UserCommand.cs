@@ -6,15 +6,16 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
-    [Argument(1)]
+    /// <summary>
+    /// 发送用户名
+    /// </summary>
+    [FtpCommand("USER", 1)]
     class UserCommand : Command
     {
         public UserCommand(Client client) : base(client)
         {
 
         }
-
-        public override CommandType CommandType => CommandType.USER;
 
         public override void Process(params string[] args)
         {

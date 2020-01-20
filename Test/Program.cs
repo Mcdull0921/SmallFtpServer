@@ -11,7 +11,7 @@ namespace Test
 
         static void Main(string[] args)
         {
-            FtpServer ftpServer = new FtpServer(users: new UserInfo { username = "test", password = "123", rootdirectory = "d:\\" });
+            FtpServer ftpServer = new FtpServer(pasv_port: 5379, users: new UserInfo { username = "test", password = "123", rootdirectory = "d:\\" });
             ftpServer.Listen();
 
 

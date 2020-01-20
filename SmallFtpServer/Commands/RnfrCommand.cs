@@ -6,14 +6,16 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
-    [Authentication, Argument(1)]
+    /// <summary>
+    /// 重命名文件-原始文件名
+    /// </summary>
+    [FtpCommand("RNFR", 1, true)]
     class RnfrCommand : Command
     {
         public RnfrCommand(Client client) : base(client)
         {
 
         }
-        public override CommandType CommandType => CommandType.RNFR;
 
         public override void Process(params string[] args)
         {

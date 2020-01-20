@@ -8,12 +8,12 @@ using System.Text;
 namespace SmallFtpServer.Commands
 {
     /// <summary>
-    /// 删除文件
+    /// 删除文件夹
     /// </summary>
-    [FtpCommand("DELE", 1, true)]
-    class DeleCommand : Command
+    [FtpCommand("RMD", 1, true)]
+    class RmdCommand : Command
     {
-        public DeleCommand(Client client) : base(client)
+        public RmdCommand(Client client) : base(client)
         {
 
         }
@@ -23,11 +23,11 @@ namespace SmallFtpServer.Commands
             try
             {
                 string path = client.LoginInfo.GetAbsolutePath(args[0]);
-                Console.WriteLine("删除文件" + path);
-                if (!File.Exists(path))
-                    throw new InvalidFileException("文件不存在");
-                File.Delete(path);
-                client.Send(ResultCode.FileComplete.ConvertString("文件删除成功"));
+                Console.WriteLine("删除目录" + path);
+                if (!Directory.Exists(path))
+                    throw new InvalidFileException("目录不存在");
+                Directory.Delete(path, true);
+                client.Send(ResultCode.FileComplete.ConvertString("目录删除成功"));
             }
             catch (Exception ex)
             {

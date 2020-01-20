@@ -6,15 +6,17 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
-    [Authentication]
-    class XpwdCommand : Command
+    /// <summary>
+    /// 当前目录
+    /// </summary>
+    [FtpCommand("PWD", needLogin: true)]
+    [FtpCommand("XPWD", needLogin: true)]
+    class PwdCommand : Command
     {
-        public XpwdCommand(Client client) : base(client)
+        public PwdCommand(Client client) : base(client)
         {
 
         }
-
-        public override CommandType CommandType => CommandType.XPWD;
 
         public override void Process(params string[] args)
         {

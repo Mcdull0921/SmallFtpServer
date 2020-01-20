@@ -5,14 +5,16 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
+    /// <summary>
+    /// 传输编码
+    /// </summary>
+    [FtpCommand("OPTS")]
     class OptsCommand : Command
     {
         public OptsCommand(Client client) : base(client)
         {
 
         }
-
-        public override CommandType CommandType => CommandType.OPTS;
 
         public override void Process(params string[] args)
         {
