@@ -45,7 +45,7 @@ namespace SmallFtpServer.Commands
         {
             string name = client.LoginInfo.GetAbsolutePath(from);
             string new_name = client.LoginInfo.GetAbsolutePath(to);
-            Console.WriteLine("重命名" + name + "到" + new_name);
+            FtpServer.Logger.Info("重命名" + name + "到" + new_name);
             FileInfo fi = new FileInfo(name);
             if (Directory.Exists(name))
             {

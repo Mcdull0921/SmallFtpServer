@@ -23,7 +23,7 @@ namespace SmallFtpServer.Commands
             try
             {
                 string path = client.LoginInfo.GetAbsolutePath(args[0]);
-                Console.WriteLine("删除目录" + path);
+                FtpServer.Logger.Info("删除目录" + path);
                 if (!Directory.Exists(path))
                     throw new InvalidFileException("目录不存在");
                 Directory.Delete(path, true);

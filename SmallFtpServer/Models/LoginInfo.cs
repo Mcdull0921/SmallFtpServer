@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.IO;
+﻿using System.IO;
+using SmallFtpServer.Exceptions;
 
 namespace SmallFtpServer.Models
 {
@@ -10,6 +8,7 @@ namespace SmallFtpServer.Models
         public string username { get; set; }
         public bool islogin { get; private set; }
         public string rename_filename { get; set; }
+        public FtpTransferMode transferMode { get; set; } = new FtpTransferMode(FtpFileType.Ascii);
 
         DirectoryInfo currentDir;
         DirectoryInfo rootDir;
@@ -29,7 +28,7 @@ namespace SmallFtpServer.Models
         public bool ChangeWorkDirectory(string path)
         {
             var p = GetAbsolutePath(path);
-            if (Directory.Exists(p) && p.StartsWith(RootFullPath))
+            if (Directory.Exists(p))
             {
                 currentDir = new DirectoryInfo(p);
                 return true;
@@ -44,13 +43,19 @@ namespace SmallFtpServer.Models
         /// <returns></returns>
         public string GetAbsolutePath(string path)
         {
+            var fullPath = "";
             if (path[0] == '/')
             {
                 path = path.TrimStart("/".ToCharArray());
-                return Path.GetFullPath(path, RootFullPath);
+                fullPath = Path.GetFullPath(path, RootFullPath);
             }
             else
-                return Path.GetFullPath(path, CurrentFullPath);
+                fullPath = Path.GetFullPath(path, CurrentFullPath);
+            if (fullPath.StartsWith(RootFullPath))
+            {
+                return fullPath;
+            }
+            throw new InvalidFileException("文件或目录不存在");
         }
 
         /// <summary>

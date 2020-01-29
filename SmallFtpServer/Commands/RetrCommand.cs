@@ -25,6 +25,8 @@ namespace SmallFtpServer.Commands
                 throw new InvalidFileException("文件不存在");
             if (file.Length == 0)
                 throw new InvalidFileException("文件大小为空");
+            if (!client.LoginInfo.transferMode.IsBinary && client.LoginInfo.transferMode.FileType != FtpFileType.Ascii)
+                throw new UnKownCommandException();
             client.Send(ResultCode.BeginTransmit.ConvertString());
             client.SendDatas(file);
             client.Send(ResultCode.EndTransmit.ConvertString());

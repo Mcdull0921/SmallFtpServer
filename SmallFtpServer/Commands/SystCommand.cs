@@ -18,7 +18,8 @@ namespace SmallFtpServer.Commands
 
         public override void Process(params string[] objs)
         {
-            client.Send(ResultCode.SystemInfo.ConvertString(Environment.OSVersion.ToString()));
+            string info = string.Format("{0} Type: {1}", Environment.OSVersion, client.LoginInfo.transferMode);
+            client.Send(ResultCode.SystemInfo.ConvertString(info));
         }
 
     }

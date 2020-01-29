@@ -19,6 +19,8 @@ namespace SmallFtpServer.Commands
 
         public override void Process(params string[] args)
         {
+            if (!client.LoginInfo.transferMode.IsBinary && client.LoginInfo.transferMode.FileType != FtpFileType.Ascii)
+                throw new UnKownCommandException();
             string path = client.LoginInfo.GetAbsolutePath(args[0]);
             client.Send(ResultCode.BeginTransmit.ConvertString());
             client.ReceiveFile(path);

@@ -25,7 +25,7 @@ namespace SmallFtpServer.Commands
             }
             else
             {
-                client.Send(ResultCode.InvalidFilePath.ConvertString("已经是根目录"));
+                throw new InvalidFileException("已经是根目录");
             }
         }
     }

@@ -7,13 +7,10 @@ using System.Text;
 
 namespace SmallFtpServer.Commands
 {
-    /// <summary>
-    /// 删除文件
-    /// </summary>
-    [FtpCommand("DELE", 1, true)]
-    class DeleCommand : Command
+    [FtpCommand("MDTM", 1, true)]
+    class MdtmCommand : Command
     {
-        public DeleCommand(Client client) : base(client)
+        public MdtmCommand(Client client) : base(client)
         {
 
         }
@@ -23,11 +20,10 @@ namespace SmallFtpServer.Commands
             try
             {
                 string path = client.LoginInfo.GetAbsolutePath(args[0]);
-                FtpServer.Logger.Info("删除文件" + path);
-                if (!File.Exists(path))
+                FileInfo file = new FileInfo(path);
+                if (!file.Exists)
                     throw new InvalidFileException("文件不存在");
-                File.Delete(path);
-                client.Send(ResultCode.FileComplete.ConvertString("文件删除成功"));
+                client.Send(ResultCode.FileInfo.ConvertString(file.LastWriteTimeUtc.ToString("yyyyMMddHHmmss.fff")));
             }
             catch (Exception ex)
             {

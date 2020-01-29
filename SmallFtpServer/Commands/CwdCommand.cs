@@ -1,4 +1,5 @@
-﻿using SmallFtpServer.Models;
+﻿using SmallFtpServer.Exceptions;
+using SmallFtpServer.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -26,7 +27,7 @@ namespace SmallFtpServer.Commands
             }
             else
             {
-                client.Send(ResultCode.InvalidFilePath.ConvertString(dirPath));
+                throw new InvalidFileException(dirPath);
             }
         }
     }

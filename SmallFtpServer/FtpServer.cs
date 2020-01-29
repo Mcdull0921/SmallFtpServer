@@ -9,6 +9,8 @@ namespace SmallFtpServer
 {
     public class FtpServer
     {
+        public static NLog.Logger Logger = NLog.LogManager.GetCurrentClassLogger();
+
         List<Client> clients;
         IEnumerable<UserInfo> users;
         TcpListener listener;
@@ -25,6 +27,7 @@ namespace SmallFtpServer
             listener = new TcpListener(IPAddress.Any, port);
             pasvListener = new TcpListener(IPAddress.Any, pasv_port);
             this.pasvEndPoint = pasvEndPoint;
+            FtpServer.Logger.Error("PORT连接失败：{0}", "asdf");
         }
 
         public bool IsListening

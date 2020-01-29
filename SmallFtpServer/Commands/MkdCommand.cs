@@ -22,7 +22,7 @@ namespace SmallFtpServer.Commands
         public override void Process(params string[] args)
         {
             if (!CreateDir(args[0]))
-                client.Send(ResultCode.InvalidFile.ConvertString("目录已经存在"));
+                throw new InvalidFileException("目录已经存在");
             else
                 client.Send(ResultCode.FileComplete.ConvertString("目录创建成功"));
         }
@@ -30,7 +30,7 @@ namespace SmallFtpServer.Commands
         private bool CreateDir(string dirName)
         {
             var dir = client.LoginInfo.GetAbsolutePath(dirName);
-            Console.WriteLine("创建目录" + dir);
+            FtpServer.Logger.Info("创建目录" + dir);
             if (Directory.Exists(dir))
             {
                 return false;

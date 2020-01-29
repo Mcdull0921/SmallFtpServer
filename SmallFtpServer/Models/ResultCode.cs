@@ -23,6 +23,10 @@ namespace SmallFtpServer.Models
         UnKownCommand = 500,
         [Description("服务关闭控制连接")]
         CloseConnect = 221,
+        [Description("{0}")]
+        FileInfo = 213,
+        [Description("{0}")]
+        HelpInfo = 214,
         [Description("系统信息:{0}")]
         SystemInfo = 215,
         [Description("操作完成:{0}")]
@@ -42,8 +46,6 @@ namespace SmallFtpServer.Models
         [Description("账号或密码错误，无法登录")]
         UnLogin = 530,
         [Description("文件或目录无效:\"{0}\"")]
-        InvalidFile = 550,
-        [Description("指定的路径无效:\"{0}\"")]
-        InvalidFilePath = 553
+        InvalidFile = 550
     }
 }

@@ -76,7 +76,7 @@ namespace SmallFtpServer
             }
             catch (Exception ex)
             {
-                Console.WriteLine("全局异常：" + ex.Message);
+                FtpServer.Logger.Error("全局异常：" + ex.Message);
                 Send(ResultCode.CloseConnect.ConvertString());
                 Close();
             }
@@ -128,7 +128,7 @@ namespace SmallFtpServer
                 {
                     if (msg.Length > 0)
                     {
-                        Console.WriteLine(msg);
+                        FtpServer.Logger.Info(msg);
                         var index = msg.IndexOf(" ");
                         if (index > -1)
                         {
@@ -144,6 +144,14 @@ namespace SmallFtpServer
                 Close();
             }
             return res;
+        }
+
+        public IEnumerable<string> Commands
+        {
+            get
+            {
+                return commands.Keys;
+            }
         }
 
         public void Send(string message)
@@ -237,7 +245,7 @@ namespace SmallFtpServer
             }
             catch (SocketException ex)
             {
-                Console.WriteLine("PORT连接失败：{0}", ex.Message);
+                FtpServer.Logger.Error("PORT连接失败：{0}", ex.Message);
                 throw new CannotTransmitException();
             }
         }

@@ -9,4 +9,10 @@
     <ProjectReference Include="..\SmallFtpServer\SmallFtpServer.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="nlog.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
